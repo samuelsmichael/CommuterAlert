@@ -77,9 +77,9 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 
     // SKUs for our products: the premium upgrade (non-consumable) and gas (consumable)
     static final String SKU_PREMIUM = "premium";
-//    static final String SKU_PREMIUM = "android.test.item_unavailable";
+    //static final String SKU_PREMIUM = "android.test.purchased";
    static final String SKU_GAS = "gas";
-  // static final String SKU_GAS= "android.test.purchased";
+  // static final String SKU_GAS= "android.test.item_unavailable";
     // SKU for our subscription (infinite gas)
     static final String SKU_INFINITE_GAS = "infinite_gas";
    // static final String SKU_INFINITE_GAS = "android.test.canceled";
@@ -376,7 +376,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
         {
         	DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         	String reportDate = df.format(mSettingsManager.getSubscriptionEnds());
-            complain("No need! You've bought a subscription that doesn't end until ."+reportDate,true);
+            complain("No need! You've bought a subscription that doesn't end until ."+reportDate,false);
             return;
         }
 
@@ -534,11 +534,11 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
             if (mHelper == null) return;
 
             if (result.isFailure()) {
-                complain("Error purchasing: " + result,true);
+                complain("Error purchasing: " + result,false);
                 return;
             }
             if (!verifyDeveloperPayload(purchase)) {
-                complain("Error purchasing. Authenticity verification failed.",true);
+                complain("Error purchasing. Authenticity verification failed.",false);
                 return;
             }
 
@@ -555,7 +555,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
                 mSettingsManager.setBoughtPermanentLicence(true);
                 mSettingsManager.setMTank(null);
                 mPostPaymentManager.doPostPaymentActivities();
-                alert("Thank you for upgrading to a permanent license!",true);
+                alert("Thank you for upgrading to a permanent license!",false);
             }
             else if (purchase.getSku().equals(SKU_INFINITE_GAS)) {
                 // bought the infinite gas subscription
@@ -563,7 +563,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
                 mSettingsManager.setBoughtASubscription(true);
                 mSettingsManager.setMTank(null);
                 mPostPaymentManager.doPostPaymentActivities();
-                alert("Thank you for subscribing.",true);
+                alert("Thank you for subscribing.",false);
             }
         }
     };
@@ -589,10 +589,10 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
                 	mSettingsManager.setMTank(Integer.valueOf(10));
                 	mPostPaymentManager.doPostPaymentActivities();
                 }
-            	finish();
+            	
             }
             else {
-                complain("Error while consuming: " + result,true);
+                complain("Error while consuming: " + result,false);
             }
             Log.d(TAG, "End consumption flow.");
         }
@@ -678,46 +678,71 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		super.onActivityResult(requestCode, resultCode, data);
 	}
 
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+	    //No call for super(). Bug on API Level > 11.
+	}
+	
 	public boolean doTrialCheck() {
 		if (mHomeManager.getSecurityManager().isTrialVersion() || mHomeManager.getSecurityManager().isUnregisteredLiveVersion()) {
 			if(mHomeManager.getSecurityManager().isTrialVersion()) {
 				if (mHomeManager.getSecurityManager().hasExceededTrials()) {
-/*					TrialVersionDialog tvdd=new TrialVersionDialog(
+					TrialVersionDialog tvdd=new TrialVersionDialog(
 							"Trial Period Has Expired",
 							"Your trial period is over. In order to continue using Commuter Alert you will have make one of the following purchases.",
 							true,this
 							);
-					tvdd.show(getFragmentManager(), "marre_mais_marre");
+					tvdd.show(getFragmentManager(), "TrialCheck_Over");
 			//		TrialVersionDialog[] tvdds= new TrialVersionDialog[1];
 				//	tvdds[0]=tvdd;
 					//new ShowExpiredDialog().execute(tvdds);
-*/
+
+/*					
 					Intent intent = new Intent(this,Home2.class)
 						.setAction("TrialVersionDialog")
 						.putExtra("Title", "Trial Period Has Expired")
 						.putExtra("Message", "Your trial period is over. In order to continue using Commuter Alert you will have make one of the following purchases.")
 						.putExtra("TrialPeriodIsOver", true);
 					startActivity(intent);
-					
+*/					
 					return false;
 				} else {
 					mHomeManager.getSecurityManager().incrementTrials();
 					if (mHomeManager.getSecurityManager().startWarnings()) {
+
+						TrialVersionDialog tvdd=new TrialVersionDialog(
+								"Trial Software Alert",
+								"Thank you for utilizing Commuter Alert. We sincerely hope that you find it useful. Your usage period is nearing its end. You have "+ String.valueOf((TRIAL_ALLOWANCE-mHomeManager.getSecurityManager().getCountUserArmed()+1)) +" usages left; after which time you will be asked to:\n\n1. Buy a packet of 10 usages: $0.99, \n2. Buy an unlimited-use subscription that lasts a year: $5.99, or\n3. Buy unlimited use forever: $10.99. ",
+								false,this
+								);
+						tvdd.show(getFragmentManager(), "TrialVersionWarning");
+						
+/*						
 						Intent intent = new Intent(this,Home2.class)
 						.setAction("TrialVersionDialog")
 						.putExtra("Title", "Trial Software Alert")
 						.putExtra("Message", "Thank you for utilizing Commuter Alert. We sincerely hope that you find it useful. Your usage period is nearing its end. You have "+ String.valueOf((TRIAL_ALLOWANCE-mHomeManager.getSecurityManager().getCountUserArmed()+1)) +" usages left; after which time you will be asked to:\n\n1. Buy a packet of 10 usages: $0.99, \n2. Buy an unlimited-use subscription that lasts a year: $5.99, or\n3. Buy unlimited use forever: $10.99. ")
 						.putExtra("TrialPeriodIsOver", false);
 					startActivity(intent);
+*/					
 					}
 				}
 			} else {
+				
+				TrialVersionDialog tvdd=new TrialVersionDialog(
+						"Unregistered Version",
+						"It appears that you are using an un-registered version. In order to continue using Commuter Alert you will have to purchase it. If you think that you have received this message in error, please try to load Commuter Alert again; and if that fails, please contact us.",
+						true,this
+						);
+				tvdd.show(getFragmentManager(), "TrialVersion_unregistered");
+/*				
 				Intent intent = new Intent(this,Home2.class)
 					.setAction("TrialVersionDialog")
 					.putExtra("Title", "Unregistered Version")
 					.putExtra("Message", "It appears that you are using an un-registered version. In order to continue using Commuter Alert you will have to purchase it. If you think that you have received this message in error, please try to load Commuter Alert again; and if that fails, please contact us.")
 					.putExtra("TrialPeriodIsOver", true);
 				startActivity(intent);
+*/				
 				return false;
 				
 			}
@@ -897,7 +922,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 
 							@Override
 							public void onClick(DialogInterface dialog, int id) {
-								mActivityX.finish();
+								
 //								mFAlertDialog.dismiss();
 							}
 						});
@@ -1412,7 +1437,6 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 									public void onClick(DialogInterface dialog,
 											int which) {
 										dismiss();
-										mActivity.finish();
 									}
 								});
             // Create the AlertDialog object and return it
