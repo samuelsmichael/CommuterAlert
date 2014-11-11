@@ -238,15 +238,20 @@ public class ActivityHistoryList extends AbstractActivityForMenu {
 		a.setLongitude(longitude);
 		a.setAddressLine(0, name);
 		getDbAdapter().writeOrUpdateHistory(a,isStation);
-		Intent broadcastIntent = new Intent();
-        broadcastIntent.setAction(ACTION_HERES_AN_ADDRESS_TO_ARM)
-        .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
-        .putExtra("latitude", latitude)
-        .putExtra("longitude", longitude)
-        .putExtra("name", name);
-        // Broadcast whichever result occurred
-        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
-        finish();
+		if(Home2.mSingleton==null) {
+			Intent broadcastIntent = new Intent();
+	        broadcastIntent.setAction(ACTION_HERES_AN_ADDRESS_TO_ARM)
+	        .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
+	        .putExtra("latitude", latitude)
+	        .putExtra("longitude", longitude)
+	        .putExtra("name", name);
+	        // Broadcast whichever result occurred
+	        LocalBroadcastManager.getInstance(this).sendBroadcast(broadcastIntent);
+	        finish();
+		} else {
+			finish();
+			Home2.mSingleton.getHomeManager().doHeresAnAddressToArm(latitude, longitude, name);
+		}
 	}
 	
 	@Override

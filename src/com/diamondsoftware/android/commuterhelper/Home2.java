@@ -312,7 +312,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		if(intent22!=null) {
 			String action=intent22.getAction();
 			if(action!=null) {
-				if(action.equals("seekingaddress")) {
+				if(action.equals("seekingaddressDEFUNCT")) {
 					getHomeManager();
 					if(HomeManager.mPreventReentry==0) {
 						HomeManager.mPreventReentry++;
@@ -344,6 +344,13 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 					"We hope that you find it useful.\n\nPlease ... if you like our app, give it a good rating.\nIf you don't, then please contact us. We will fix all bugs, and take any requests for enhancements very, very seriously.\n\nTo rate our app, or to contact us, press the menu.", Home2.this).show();
 		}
 		
+	}
+	public void doSeekAddress(String seekAddressString) {
+		if(HomeManager.mPreventReentry==0) {
+			HomeManager.mPreventReentry++;
+			getHomeManager().manageKeyedInAddress(
+				seekAddressString);
+		}
 	}
     // We're being destroyed. It's important to dispose of the helper here!
     @Override
@@ -1167,7 +1174,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		// ask if user wants to give a nickname
 		if (!gotRRStation) {
 			new NickNameDialog(Home2.this, useThisAddress)
-					.show();
+					.show(this.getFragmentManager(),"NickNameDialog1");
 		} else {
 			// arm the system
 			Editor editor = getSettings().edit();
@@ -1280,7 +1287,12 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		return mNotificationManager;
 	}
 
-	public static class NickNameDialog {
+	public void doNickNameDialog(Address a) {
+		new NickNameDialog(this, a)
+		.show(this.getFragmentManager(),"NickNameDialog2");
+
+	}
+	public static class NickNameDialog extends DialogFragment {
 		private Activity mActivity;
 		private Address mAddress;
 
@@ -1293,8 +1305,8 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			mActivity = activity;
 			mAddress = address;
 		}
-
-		public void show() {
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
 			AlertDialog.Builder builder = new AlertDialog.Builder(
 					new ContextThemeWrapper(mActivity,
 							R.style.AlertDialogCustomLight));
@@ -1331,7 +1343,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 					});
 
 			AlertDialog dialog = builder.create();
-			dialog.show();
+			return dialog;
 		}
 	}
 

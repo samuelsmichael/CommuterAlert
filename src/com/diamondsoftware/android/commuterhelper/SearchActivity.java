@@ -1,21 +1,9 @@
 package com.diamondsoftware.android.commuterhelper;
 
-import com.diamondsoftware.android.commuterhelper.HomeManager.LocationAndWantsSurroundingTrainStations;
-import com.diamondsoftware.android.commuterhelper.R;
-
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Locale;
 
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesClient;
-import com.google.android.gms.location.LocationClient;
-
-import android.location.Address;
-import android.location.Location;
-import android.os.Bundle;
-import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -23,11 +11,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
-import android.support.v4.app.FragmentActivity;
+import android.location.Address;
+import android.location.Location;
+import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -35,6 +24,11 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+
+import com.diamondsoftware.android.commuterhelper.HomeManager.LocationAndWantsSurroundingTrainStations;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesClient;
+import com.google.android.gms.location.LocationClient;
 
 public class SearchActivity extends AbstractActivityForMenu implements WantsSurroundingTrainStations, 
 		GooglePlayServicesClient.ConnectionCallbacks,
@@ -66,10 +60,14 @@ public class SearchActivity extends AbstractActivityForMenu implements WantsSurr
 				public void onClick(View v) {
 				String locationAddress=
 						intersection.getText().toString();
-				Intent intent=new Intent(SearchActivity.this,Home2.class)
-					.setAction("seekingaddress")
-		        	.putExtra("SeekAddressString", locationAddress);
-				startActivity(intent);
+					if(Home2.mSingleton==null) {
+						Intent intent=new Intent(SearchActivity.this,Home2.class)
+							.setAction("seekingaddress")
+				        	.putExtra("SeekAddressString", locationAddress);
+						startActivity(intent);
+					} else {
+						Home2.mSingleton.doSeekAddress(locationAddress);
+					}
 				/*
 			        Intent broadcastIntent = new Intent();
 			        broadcastIntent.setAction(ACTION_HERES_AN_STREET_ADDRESS_TO_SEEK)
@@ -272,19 +270,25 @@ public class SearchActivity extends AbstractActivityForMenu implements WantsSurr
 						}
 						
 						mActivity.getDbAdapter().writeOrUpdateHistory(a,true);
-				        Intent broadcastIntent = new Intent();
-				        broadcastIntent.setAction(ACTION_HERES_AN_ADDRESS_TO_ARM)
-				        .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
-				        .putExtra("latitude", mAddresses.get(which).getLatitude())
-				        .putExtra("longitude", mAddresses.get(which).getLongitude())
-				        .putExtra("name", mAddresses.get(which).getAddressLine(0));
-				        // Broadcast whichever result occurred
-				        LocalBroadcastManager.getInstance(SearchRailroadStationsDialogFragment.this.getActivity()).sendBroadcast(broadcastIntent);
 						Editor editor = settings.edit();
 						editor.putString(GlobalStaticValues.KEY_SpeakableAddress, mAddresses.get(which).getAddressLine(0));
 						editor.commit();
-
 						getActivity().finish();
+						if(Home2.mSingleton==null) {
+					        Intent broadcastIntent = new Intent();
+					        broadcastIntent.setAction(ACTION_HERES_AN_ADDRESS_TO_ARM)
+					        .addCategory(GeofenceUtils.CATEGORY_LOCATION_SERVICES)
+					        .putExtra("latitude", mAddresses.get(which).getLatitude())
+					        .putExtra("longitude", mAddresses.get(which).getLongitude())
+					        .putExtra("name", mAddresses.get(which).getAddressLine(0));
+					        // Broadcast whichever result occurred
+					        LocalBroadcastManager.getInstance(SearchRailroadStationsDialogFragment.this.getActivity()).sendBroadcast(broadcastIntent);
+						} else {
+							Home2.mSingleton.getHomeManager().doHeresAnAddressToArm(
+									mAddresses.get(which).getLatitude(), mAddresses.get(which).getLongitude(), mAddresses.get(which).getAddressLine(0));
+							SearchRailroadStationsDialogFragment.this.getActivity().finish();
+						}
+
 					}
 				});
             // Create the AlertDialog object and return it
@@ -303,12 +307,13 @@ public class SearchActivity extends AbstractActivityForMenu implements WantsSurr
 		//location.setLatitude(40.658421);
 		//location.setLongitude(-74.29959);	
 		//
-
-		LocationAndWantsSurroundingTrainStations client=new HomeManager(this).new LocationAndWantsSurroundingTrainStations();
+		HomeManager hm=new HomeManager(this);
+		LocationAndWantsSurroundingTrainStations client=hm.new LocationAndWantsSurroundingTrainStations();
 		client.mClient=(WantsSurroundingTrainStations)SearchActivity.this;
 		client.mLocation=location;
-		new HomeManager(this).new RetrieveAllAddressesForSearch()
-		.execute(client);					
+		hm.new RetrieveAllAddressesForSearch()
+		.execute(client);		
+		mLocationClient.disconnect();
 	}
 	@Override
 	public void onDisconnected() {

@@ -29,7 +29,6 @@ import android.view.ContextThemeWrapper;
 import android.view.View;
 import android.widget.Toast;
 
-import com.diamondsoftware.android.commuterhelper.Home2.NickNameDialog;
 import com.diamondsoftware.android.commuterhelper.SearchActivity.SearchRailroadStationsDialogFragment;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -730,8 +729,7 @@ public class HomeManager implements
 	}	
 	
 	public void newLocationButFirstPrompt(Address a) {
-		new NickNameDialog(mActivity, a)
-		.show();
+		((Home2)mActivity).doNickNameDialog(a);
 	}
 	
 	public void newLocation(Address a) {
@@ -948,7 +946,18 @@ public class HomeManager implements
 		}
 		return mSecurityManager;
 	}	
-	
+
+    public void doHeresAnAddressToArm(double latitude,double longitude, String name) {
+		Address address=new Address(Locale.getDefault());
+		address.setLatitude(latitude);
+		address.setLongitude(longitude);
+		address.setAddressLine(0, name);
+		if(address.getLatitude()!=0 && address.getLongitude()!=0) {
+			newLocation(address);
+		}
+    }
+    
+
     public static class ManyAddressHits extends DialogFragment {
     	private CharSequence[] mItems;
 		final String[] mAddresses;
