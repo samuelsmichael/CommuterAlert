@@ -819,6 +819,14 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			// mMap.animateCamera(CameraUpdateFactory.zoomTo(mMapZoomLevel));
 			mMap.setMyLocationEnabled(true);
 		}
+		SharedPreferences settings = getSharedPreferences(
+				getPREFS_NAME(), MODE_PRIVATE);
+		float zoom=settings.getFloat("zoom", -1);
+		double longitude=Double.valueOf(settings.getString("longitude","0"));
+		double latitude=Double.valueOf(settings.getString("latitude","0"));
+		if(longitude!=0 && zoom!=-1) {
+			mMap.moveCamera( CameraUpdateFactory.newLatLngZoom(new LatLng(latitude,longitude) , zoom) );
+		}
 	}
 
 	public HomeManager getHomeManager() {
