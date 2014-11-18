@@ -43,6 +43,7 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.diamondsoftware.android.commuterhelpertrial.util.IabHelper;
@@ -107,7 +108,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 	private Button disarmButton = null;
 	private CompoundButton armedButton = null;
 	private TextView currentLocation=null;
-	
+	private Button forceCrash = null;
 
 
 	static final float SOMEKINDOFFACTOR = 720; // this factor is the
@@ -132,6 +133,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 	private ImageView mHelp2;
 	private ImageView mHelp3;
 	private ImageView mHelp4;
+	private ProgressBar mProgressBar;
 	AlertDialog mFAlertDialog;
 
 	public SharedPreferences getSettings() {
@@ -194,10 +196,21 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		mHelp2=(ImageView)findViewById(R.id.image_help_main_2);
 		mHelp3=(ImageView)findViewById(R.id.image_help_main_3);
 		mHelp4=(ImageView)findViewById(R.id.image_help_main_4);
-
+		mProgressBar=(ProgressBar)findViewById(R.id.progressBar1);
+		
 		disarmButton = (Button) findViewById(R.id.buttonSearch);
 		armedButton = (CompoundButton) findViewById(R.id.switchArmed);
 		currentLocation=(TextView)findViewById(R.id.tvCurrentLocation2);
+		forceCrash=(Button)findViewById(R.id.buttonForceACrash);
+		forceCrash.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				int i=3;
+				int j=0;
+				float f=i/j;
+			}
+		});
 
 		try {
 			CURRENT_VERSION = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
@@ -774,6 +787,8 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			mMap = mMapFragment.getMap();
 			// Check if we were successful in obtaining the map.
 			if (mMap != null) {
+				mMapFragment.getView().setVisibility(View.INVISIBLE);
+				mProgressBar.setVisibility(View.VISIBLE);
 				// The Map is verified. It is now safe to manipulate the map.
 				// mMap.animateCamera(CameraUpdateFactory.zoomTo(mMapZoomLevel));
 				mMap.setMyLocationEnabled(true);
@@ -1112,6 +1127,8 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 						}
 				});
 			}
+			mProgressBar.setVisibility(View.GONE);
+			mMapFragment.getView().setVisibility(View.VISIBLE);
 		}
 	}
 

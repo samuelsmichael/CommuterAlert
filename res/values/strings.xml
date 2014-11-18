@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!--  Crash Reports -->
+        <string name="crash_toast_text">CommuterAlert has crashed. Standby while an error report is formatted.</string>
+
+<string name="crash_dialog_comment_prompt">You might add your comments about the problem below:</string>
+<string name="crash_dialog_ok_toast2">Thank you !</string>
+<string name="crash_dialog_title">CommuterAlert has crashed</string>
+<string name="crash_dialog_text">An unexpected error occurred forcing the
+    application to stop. Please help us fix this by sending us error data,
+    all you have to do is click OK.  The data will be formatted into an email</string>
+    
+    
 	<!-- Logging -->
 	    <string name="default_logginglevel_value">2</string>
 	    <string name="defaultlogging_title_list_preference">Logging Filter</string>
