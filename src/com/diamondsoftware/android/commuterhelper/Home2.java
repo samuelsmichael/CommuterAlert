@@ -1121,7 +1121,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 									new LatLng(address.getLatitude(), address
 											.getLongitude()))
 							.title(address.getAddressLine(0)).icon(bmd));
-					marker.showInfoWindow();
+		//why			marker.showInfoWindow();
 				}
 				// define an "onMapLongClick" listener that
 				// 1. Moves the marker (hides the old one and creates the new
@@ -1135,8 +1135,12 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 						}
 				});
 			}
-			mProgressBar.setVisibility(View.GONE);
-			mMapFragment.getView().setVisibility(View.VISIBLE);
+			if (mProgressBar != null) {
+				mProgressBar.setVisibility(View.GONE);
+			}
+			if (mMapFragment!=null && mMapFragment.getView()!=null) {
+				mMapFragment.getView().setVisibility(View.VISIBLE);
+			}
 		}
 	}
 
