@@ -1,7 +1,5 @@
 package com.diamondsoftware.android.commuterhelper;
 
-import com.diamondsoftware.android.commuterhelper.R;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,23 +11,15 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import android.app.Activity;
+import android.content.Context;
+import android.os.Handler;
+import android.telephony.TelephonyManager;
+
 import com.google.android.vending.licensing.AESObfuscator;
 import com.google.android.vending.licensing.LicenseChecker;
 import com.google.android.vending.licensing.LicenseCheckerCallback;
 import com.google.android.vending.licensing.ServerManagedPolicy;
-
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Handler;
-import android.telephony.TelephonyManager;
-import android.view.ContextThemeWrapper;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.Button;
 
 public class SecurityManager {
 	Activity mActivity;

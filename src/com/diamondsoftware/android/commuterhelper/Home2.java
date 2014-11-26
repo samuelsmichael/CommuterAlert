@@ -91,7 +91,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
     // The helper object
     IabHelper mHelper;
     
-	public static final int TRIAL_ALLOWANCE = 10;
+	public static final int TRIAL_ALLOWANCE = 100;
 
     private static final int ARMED_NOTIFICATION_ID=3;
     private NotificationManager mNotificationManager=null;
@@ -125,7 +125,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 	private  MyBroadcastReceiver mBroadcastReceiver;
 	private static IntentFilter mIntentFilter;
 	private static String INSTRUCTIONS_MESSAGE = "To select a location\n\n-- Long press the screen\n   at the desired location. \n\n              or\n\n-- Press the Search button.";
-	public static String CURRENT_VERSION="1.00";
+	public static String CURRENT_VERSION;
 	private static boolean needToBringUpSplashScreen = false;
 	public static Home2 mSingleton=null;
 	public boolean mIveShownGPSNotEnabledWarning=false;

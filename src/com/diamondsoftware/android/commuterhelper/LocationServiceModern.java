@@ -25,7 +25,7 @@ GooglePlayServicesClient.OnConnectionFailedListener,
 com.google.android.gms.location.LocationListener{
 	private static final String ACTION_ETA="actioneta";
     private LocationClient mLocationClient;
-    LocationRequest mLocationRequest;
+    LocationRequest mLocationRequest=null;
 	private LocationManager mLocationManager = null;
     SharedPreferences settings;
     @Override
@@ -34,18 +34,27 @@ com.google.android.gms.location.LocationListener{
         settings = getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);
     }
 
+    private LocationRequest getLocationRequest() {
+    	if(mLocationRequest==null) {
+            mLocationRequest = LocationRequest.create();
+            // Use high accuracy
+            mLocationRequest.setPriority(
+                    LocationRequest.PRIORITY_HIGH_ACCURACY);
+            // Set the update interval
+            long updateInterval=15000;
+            try {
+            	updateInterval=Long.valueOf(settings.getString("locationupdatefrequency","15000"));
+            } catch (Exception e) {}
+            mLocationRequest.setInterval(updateInterval);
+            // Set the fastest update interval to 1 second
+            mLocationRequest.setFastestInterval(3000);
+    	}
+    	return mLocationRequest;
+    }
 
 	@Override
 	protected void initializeLocationManager() {
-        mLocationRequest = LocationRequest.create();
-        // Use high accuracy
-        mLocationRequest.setPriority(
-                LocationRequest.PRIORITY_HIGH_ACCURACY);
-        // Set the update interval
-        long updateInterval=Long.valueOf(settings.getString("locationupdatefrequency","15000"));
-        mLocationRequest.setInterval(updateInterval);
-        // Set the fastest update interval to 1 second
-        mLocationRequest.setFastestInterval(1000);
+		getLocationRequest();
 	}
 
 	private int mDontReenter=0;
@@ -262,7 +271,7 @@ com.google.android.gms.location.LocationListener{
 
 	@Override
 	public void onConnected(Bundle arg0) {
-		mLocationClient.requestLocationUpdates(mLocationRequest, this);
+		mLocationClient.requestLocationUpdates(getLocationRequest(), this);
 	}
 
 	@Override
