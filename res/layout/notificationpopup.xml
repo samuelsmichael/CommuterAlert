@@ -20,6 +20,7 @@
 	        android:layout_marginBottom="20dp"
 	        android:layout_marginLeft="20dp"
 	        android:layout_marginRight="2dp"
+	        android:textSize="22sp"
 	        android:text="description goes here" />
 	
 	    <Button
@@ -29,7 +30,13 @@
 	        android:layout_width="fill_parent"
 	        android:layout_height="wrap_content"
 	        android:text="Okay" />
-	
+		<Button
+	        android:id="@+id/rateMe"
+	        style="?android:attr/buttonStyleSmall"
+	        android:layout_gravity="center_horizontal"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:text="Rate app" />
 	
 	</LinearLayout>
 </LinearLayout>
