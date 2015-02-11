@@ -1,4 +1,5 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="Theme.Dialog" parent="@android:style/Theme.Dialog" />
 	  <style name="Theme.Splash" parent="android:Theme">
 	    <item name="android:windowIsTranslucent">true</item>
 	    <item name="android:windowBackground">@android:color/transparent</item>

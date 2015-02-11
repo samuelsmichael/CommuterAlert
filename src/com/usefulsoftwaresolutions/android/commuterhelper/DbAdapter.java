@@ -25,7 +25,7 @@ import android.location.Location;
 import android.location.LocationManager;
 
 public class DbAdapter {
-	private static final int DATABASE_VERSION = 9;
+	private static final int DATABASE_VERSION = 10;
 
 	public static final DateFormat mDateFormat = new SimpleDateFormat(
 	"yyyy-MM-dd HH:mm:ss.S");
@@ -41,7 +41,7 @@ public class DbAdapter {
 	public static final String KEY_HISTORY_IS_STATION="isstation";
 
 	private LocationManager mLocationManager=null;
-	private final Activity mActivity;
+	private final Context mContext;
 	private DatabaseHelper mDbHelper;
 	private SQLiteDatabase mDb;
 	
@@ -49,6 +49,7 @@ public class DbAdapter {
 	private static final String DATABASE_TABLE_LOCATION = "location";
 	private static final String DATABASE_TABLE_STATION = "station";
 	public static final String DATABASE_TABLE_HISTORY = "history";
+	public static final String DATABASE_TABLE_MYSTATIONS="mystations";
 
 
 	/* Public interface ---------------------------------------------------------------------- */
@@ -59,8 +60,8 @@ public class DbAdapter {
 	 * @param activity
 	 *            the Activity within which to work
 	 */
-	public DbAdapter(Activity activity) {
-		this.mActivity = activity;
+	public DbAdapter(Context context) {
+		this.mContext = context;
 	}
 	
 	public synchronized void setHistoryItemNickname(long id, String nickname) {
@@ -94,6 +95,33 @@ public class DbAdapter {
 		    null	                                // The sort order
 		    );
 		return cu;
+	}
+	public synchronized void addToMyStationsIfNotExists(Address address, String name) {
+		/* Check to see if station already exists with this name */
+		String[] projection = {
+				KEY_ROWID};
+
+			Cursor cu = getSqlDb().query(
+				DATABASE_TABLE_MYSTATIONS,  				// The table to query
+			    projection,                             // The columns to return
+			    KEY_NAME + "=?",                                	// The columns for the WHERE clause
+			    new String[] {name},                            		// The values for the WHERE clause
+			    null,                                   // don't group the rows
+			    null,                                   // don't filter by row groups
+			    null	                               // The sort order
+			    );
+			if(cu.getCount()<=0) {		
+				ContentValues values = new ContentValues();
+				values.put(KEY_LATITUDE, address.getLatitude());
+				values.put(KEY_LONGITUDE, address.getLongitude());
+				values.put(KEY_NAME,name);
+		
+				getSqlDb().insert(
+						DATABASE_TABLE_MYSTATIONS,
+				         null,
+				         values);
+			}
+		cu.close();
 	}
 	/*
 	 * Create cache information for a location.
@@ -216,6 +244,37 @@ public class DbAdapter {
 		} else {
 			cu.close();
 		}
+		// Now add anything that might be in MYSTATIONS
+		String[] projection3 = {
+				KEY_LATITUDE,
+				KEY_LONGITUDE,
+				KEY_NAME
+			    };		
+		cu = getSqlDb().query(
+				DATABASE_TABLE_MYSTATIONS,  				// The table to query
+			    projection3,                             // The columns to return
+			    null,                                	// The columns for the WHERE clause
+			    null,                            		// The values for the WHERE clause
+			    null,                                   // don't group the rows
+			    null,                                   // don't filter by row groups
+			    null                              	// The sort order
+			    );
+		if(cu.getCount()>0) {
+			while(cu.moveToNext()) {
+				double locationLongitude=cu.getDouble(cu.getColumnIndex(KEY_LONGITUDE));
+				double locationLatitude=cu.getDouble(cu.getColumnIndex(KEY_LATITUDE));
+				String name=cu.getString(cu.getColumnIndex(KEY_NAME));
+				Address address=new Address(Locale.getDefault());
+				address.setLatitude(locationLatitude);
+				address.setLongitude(locationLongitude);
+				address.setAddressLine(0, name);
+				addressList.add(address);
+			}
+			cu.close();
+		} else {
+			cu.close();
+		}
+		
 		if(addressList!=null && addressList.size()>1) {
 			Collections.sort(addressList, new Comparator<Address>() {
 		        @Override
@@ -426,6 +485,10 @@ public class DbAdapter {
 				"_fid integer not null, " +
 				"latitude double not null, " +
 				"longitude double not null, name text not null ); ";
+		private static final String CREATE_TABLE_MYSTATIONS = "create table mystations (" +
+				"_id integer primary key autoincrement, " +
+				"latitude double not null, " +
+				"longitude double not null, name text not null ); ";
 		private static final String CREATE_TABLE_HISTORY = "create table history (" +
 				"_id integer primary key autoincrement, " +
 				"latitude double not null, " +
@@ -454,6 +517,9 @@ public class DbAdapter {
 			try {
 				db.execSQL(CREATE_TABLE_HISTORY);
 			} catch (Exception eieio33) {}
+			try {
+				db.execSQL(CREATE_TABLE_MYSTATIONS);
+			} catch (Exception eieio33) {}
 		}
 
 		@Override
@@ -476,6 +542,7 @@ public class DbAdapter {
 			if(newVersion==9) {
 				db.execSQL("DROP TABLE IF EXISTS " + DATABASE_TABLE_HISTORY);
 			}
+
 			onCreate(db);
 		}
 
@@ -490,7 +557,7 @@ public class DbAdapter {
 	private SQLiteDatabase getSqlDb() {
 		if (mDb == null) {
 			if (mDbHelper == null) {
-				mDbHelper = new DatabaseHelper(mActivity);
+				mDbHelper = new DatabaseHelper(mContext);
 			}
 			mDb = mDbHelper.getWritableDatabase();
 		}
@@ -499,7 +566,7 @@ public class DbAdapter {
 
 	private LocationManager getLocationManager() {
 		if (mLocationManager == null) {
-			mLocationManager = (android.location.LocationManager) mActivity.getSystemService(Context.LOCATION_SERVICE);
+			mLocationManager = (android.location.LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
 		}
 		return mLocationManager;
 	}

@@ -19,11 +19,14 @@ import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesClient;
@@ -55,6 +58,19 @@ public class SearchActivity extends AbstractActivityForMenu implements WantsSurr
 		final Button history=(Button) findViewById(R.id.searchButtonHistory);
 		final Button back=(Button) findViewById(R.id.searchButtonBack);
 		settings=getSharedPreferences(getPREFS_NAME(), MODE_PRIVATE);
+		intersection.setOnEditorActionListener(new EditText.OnEditorActionListener(){  
+
+			@Override
+			public boolean onEditorAction(TextView v, int actionId,
+					KeyEvent event) {
+				if(actionId==EditorInfo.IME_ACTION_GO) {
+					addressOrIntersection.performClick();
+					return true;
+				}
+				return false;
+			} 
+
+		}); 
 		addressOrIntersection.setOnClickListener(new View.OnClickListener() {
 			@Override
 				public void onClick(View v) {

@@ -146,7 +146,13 @@ public class VoiceHelper extends Activity implements AudioManager.OnAudioFocusCh
 	
 	private String getVoiceAndPopupText() {
 		String replacement=mSharedPreferences.getString(GlobalStaticValues.KEY_SpeakableAddress, "your destination");
-		String retValue=mSharedPreferences.getString("voicetext", ALERT_TEXT).replace("~destination~", replacement);
+		String alertText=mSharedPreferences.getString("voicetext", ALERT_TEXT);
+		String retValue=ALERT_TEXT;
+		if(alertText.equals(ALERT_TEXT)) {
+			retValue=alertText.replace("your destination", replacement);
+		} else {
+			retValue=alertText.replace("~destination~", replacement);
+		}
 		return retValue;
 	}
 	private boolean ringerModeNormal=false;

@@ -87,16 +87,6 @@
             style="?android:attr/buttonStyleSmall"
             android:text="SEARCH" />
         
-	    <Button
-            android:id="@+id/buttonForceACrash"
-            android:layout_width="wrap_content"
-            android:alpha="1"
-            android:layout_height="32dp"
-            android:gravity="right"
-            android:textColor="#000000"
-            style="?android:attr/buttonStyleSmall"
-            android:text="Force Crash" />
-	            
 	    <TextView
 	        android:id="@+id/tvCurrentLocation2"
 	        android:layout_width="match_parent"

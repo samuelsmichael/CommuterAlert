@@ -83,9 +83,10 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:background="#cdcdcd"
-            android:lines="3"
+            android:lines="2"
             android:layout_marginTop="9dp"
             android:layout_marginLeft="14dp"
+            android:imeOptions="actionGo"
             android:layout_marginRight="14dp" />
 
 	    <Button
@@ -102,7 +103,7 @@
 		<View
 			android:layout_width="fill_parent"
 			android:layout_height="2dip"
-			android:layout_marginTop="4dp"
+			android:layout_marginTop="8dp"
 			android:background="#FF0000FF" />
 	    <TextView
 	        android:id="@+id/textView8"
@@ -128,7 +129,7 @@
 		<View
 			android:layout_width="fill_parent"
 			android:layout_height="2dip"
-			android:layout_marginTop="4dp"
+			android:layout_marginTop="8dp"
 			android:background="#FF0000FF" />
 	    <TextView
 	        android:id="@+id/textView9"

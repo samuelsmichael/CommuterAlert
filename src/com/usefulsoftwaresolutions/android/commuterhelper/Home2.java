@@ -40,6 +40,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -91,7 +92,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
     // The helper object
     IabHelper mHelper;
     
-	public static final int TRIAL_ALLOWANCE = 100;
+	public static final int TRIAL_ALLOWANCE = 13;
 
     private static final int ARMED_NOTIFICATION_ID=3;
     private NotificationManager mNotificationManager=null;
@@ -154,7 +155,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			mPostPaymentManager=new PostPaymentManager(this);
 		}
 		// load mGas
-		String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA14rS4bA3hKKS0xUq239+qygEqxwkpvDKEtcAptoZXsprt8uL6IY3gO9mbOUcIFc6sQRAGE7+KRXH3tWkHmBIVKjmX1qFvu7HZWdYfZeg1qJUGpI12LHDeFL3c533njNrzP+eHPetmqgbOTexeQbzEuZP8POzXhEXICNMYvgM3MMrXpEbw1IjxTUmMyZfwz5TSfbnqqgyZ4qSxLzb8gAuOQbIe2dYyNMj8IZ+yMH6HBorvXOj2Zig/EaYL7mvcb5/oXmp/jXJjcP408URM2xoSyraxeSTNGp+0c5lQZNLp5ex0/fi3ZbRn3qgATxTAeFktIeBYxlyS/g1A+GEhHzsHwIDAQAB";
+		String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwXQjKmMImf0pmmtr8ZCloAUKDP+dvA8oUFWzCja8LUvQBBz2auLoQGgMVZ23B6M8BfHRixy000B3nXmk6WZ648kwsVK8u/7vQyvvXdkcD1F9yFXERVoe3svijy0vC00vn/xf/viRCvDxMk9Hhjlo0Rxh8cvH8V0OoNaNVN0/B/QI38UlOV3IRuq3UjYCHBJjMFKjDbm62ZarM7EHxjx2VZInpWU+YVzqTBCUHPOum9JpL6B3BqLimOzWUpSKvBmKUZW4Qfkpb/u2mtr/qqxuW691IWovgKw7DVjwRBe+h9B0SIbYZcMqsyyRcB4UYE7XbqMTUzR4qf0uckmQPm0OewIDAQAB";
 		mHelper = new IabHelper(this,base64EncodedPublicKey);
 		mHelper.enableDebugLogging(true);
         // Start setup. This is asynchronous and the specified listener
@@ -200,7 +201,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		disarmButton = (Button) findViewById(R.id.buttonSearch);
 		armedButton = (CompoundButton) findViewById(R.id.switchArmed);
 		currentLocation=(TextView)findViewById(R.id.tvCurrentLocation2);
-		forceCrash=(Button)findViewById(R.id.buttonForceACrash);
+/*		forceCrash=(Button)findViewById(R.id.buttonForceACrash);
 		forceCrash.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
@@ -210,7 +211,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 				float f=i/j;
 			}
 		});
-
+*/
 		try {
 			CURRENT_VERSION = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
 		} catch (NameNotFoundException e) {
@@ -1345,27 +1346,23 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 			// layout
 			final View view=inflater.inflate(R.layout.nickname, null);
 			final EditText nickName = (EditText) view.findViewById(R.id.nickname);
+			final CheckBox isTrainStation=(CheckBox) view.findViewById(R.id.cbIsATrain);
 			nickName.setText(mAddress.getAddressLine(0));
 			builder.setView(view);
-			builder.setPositiveButton("Yes, use value above",
+			builder.setPositiveButton("Okay",
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int id) {
 							
 							if(!nickName.getText().toString().trim().equals("")) {
 								mAddress.setAddressLine(0, nickName.getText()
-										.toString());
+										.toString().trim());
 								Editor editor = ((Home2)mActivity).getSettings().edit();
-								editor.putString(GlobalStaticValues.KEY_SpeakableAddress, nickName.getText().toString());
+								editor.putString(GlobalStaticValues.KEY_SpeakableAddress, nickName.getText().toString().trim());
 								editor.commit();
+								if(isTrainStation.isChecked()) {
+									((CommuterAlertApplication)mActivity.getApplication()).getDbAdapter().addToMyStationsIfNotExists(mAddress,nickName.getText().toString().trim());
+								}
 							}
-							((Home2) mActivity).armTheSystem(mAddress,false);
-						}
-					}).setNegativeButton("No, use original name",
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							Editor editor = ((Home2)mActivity).getSettings().edit();
-							editor.putString(GlobalStaticValues.KEY_SpeakableAddress, mAddress.getAddressLine(0));
-							editor.commit();
 							((Home2) mActivity).armTheSystem(mAddress,false);
 						}
 					});

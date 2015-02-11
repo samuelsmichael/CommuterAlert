@@ -12,17 +12,37 @@
         android:textStyle="bold"
         android:layout_marginTop="8dp"
         android:layout_marginLeft="5dp"
-        android:text="Give a nickname to this location?" />    
+        android:text="Key in a nickname for this location" />    
     
     <EditText
         android:id="@+id/nickname"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginLeft="4dp"
         android:layout_marginRight="4dp"
         android:layout_marginBottom="4dp"
-        android:hint="Key in name" />
+        android:hint="Key in nickname" />
 
-
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="5dp"
+        android:text="Is this location a train station?" />    
+     
+    <CheckBox
+        android:id="@+id/cbIsATrain"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="13sp"
+        android:textStyle="normal"
+        android:layout_marginTop="8dp"
+        android:layout_marginLeft="5dp"
+        android:text="Yes"
+        android:checked="false"
+        ></CheckBox>
+    
 </LinearLayout>

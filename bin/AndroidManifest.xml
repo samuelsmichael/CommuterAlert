@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="19" android:versionName="1.19" package="com.usefulsoftwaresolutions.android.commuterhelper">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.00" package="com.usefulsoftwaresolutions.android.commuterhelper">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.VIBRATE"/>
@@ -65,7 +65,7 @@
         		- Trial		AIzaSyCwRYSAAKuXYjQ852G8LLMaXmY0HxRgw2A
         		- Non-Trial	AIzaSyCwRYSAAKuXYjQ852G8LLMaXmY0HxRgw2A
          -->        
-		<meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyCwRYSAAKuXYjQ852G8LLMaXmY0HxRgw2A"/>        
+		<meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyDRB2FlpUa1eFKeiJJ2LBffATMy29bPBMQ"/>        
 
 		<activity android:label="@string/title_activity_search" android:name="com.usefulsoftwaresolutions.android.commuterhelper.SearchActivity">
         </activity>

@@ -20,12 +20,28 @@ import android.app.Application;
         mailTo = "usefulsoftwaresolutions@gmail.com"	
 )
 public class CommuterAlertApplication extends Application {
+	DbAdapter mDbAdapter;
     @Override
     public void onCreate() {
         super.onCreate();
-		Fabric.with(this, new Crashlytics());
+		///Fabric.with(this, new Crashlytics());
 
         // The following line triggers the initialization of ACRA
-     ///   ACRA.init(this);
+        ACRA.init(this);
+        mDbAdapter=new DbAdapter(this);
+    }
+
+	/* (non-Javadoc)
+	 * @see android.app.Application#onTerminate()
+	 */
+	@Override
+	public void onTerminate() {
+		try {
+			mDbAdapter.close();
+		} catch (Exception ee) {}
+		super.onTerminate();
+	}
+    public DbAdapter getDbAdapter() {
+    	return mDbAdapter;
     }
 }
