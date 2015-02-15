@@ -3,16 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
     
-    <ImageView 
-        android:layout_marginLeft="10dip"
-        android:layout_marginRight="10dip"
-        android:paddingBottom="50dip"
-        android:paddingTop="50dip"
+    <ImageView android:id="@+id/ivImageSplash"
         android:layout_centerInParent="true"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/logo_splash_medium"
-        android:scaleType="centerCrop"
+        android:src="@drawable/logo_splash"
+        android:scaleType="centerCrop" 
         />
     
 </RelativeLayout>

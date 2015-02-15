@@ -10,6 +10,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Point;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -18,7 +19,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.DisplayMetrics;
 import android.view.ContextThemeWrapper;
+import android.view.Display;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 
 public class ActivitySplash extends Activity implements
@@ -35,6 +41,26 @@ public class ActivitySplash extends Activity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.splash);
+		
+		
+		Display display = getWindowManager().getDefaultDisplay();
+		DisplayMetrics metrics = getResources().getDisplayMetrics();
+		int densityDpi = (int)(metrics.density * 160f);
+		Point size = new Point();
+		display.getSize(size);
+		int width = (int)(float)((float)size.x * .9f);
+		int height = (int)(float)((float)width * .2859f);
+		
+		ImageView imageView=(ImageView)findViewById(R.id.ivImageSplash);
+		RelativeLayout.LayoutParams parms = new RelativeLayout.LayoutParams(width,height);
+		
+		imageView.setLayoutParams(parms);
+		imageView.requestLayout();
+		/*
+		imageView.getLayoutParams().width = 420;// width;
+		imageView.setScaleType(ScaleType.CENTER_CROP);
+		imageView.requestLayout();
+		*/
 	}
 	/* (non-Javadoc)
 	 * @see android.app.Activity#onResume()

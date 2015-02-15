@@ -30,7 +30,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.Settings.Secure;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
@@ -38,7 +37,6 @@ import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -72,6 +70,8 @@ import com.usefulsoftwaresolutions.android.commuterhelpertrial.util.Purchase;
  */
 public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		WantsSurroundingTrainStations {
+	
+	private Purchase mGasPurchase=null;
 	private GoogleMap mMap = null;
     // Debug tag, for logging
     static final String TAG = "CommuterAlert";
@@ -83,7 +83,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
    static final String SKU_GAS = "gas";
   // static final String SKU_GAS= "android.test.item_unavailable";
     // SKU for our subscription (infinite gas)
-    static final String SKU_INFINITE_GAS = "infinite_gas";
+    static final String SKU_INFINITE_GAS = "1_year_of_usage";
    // static final String SKU_INFINITE_GAS = "android.test.canceled";
 
     // (arbitrary) request code for the purchase flow
@@ -92,7 +92,10 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
     // The helper object
     IabHelper mHelper;
     
-	public static final int TRIAL_ALLOWANCE = 13;
+    /*bbhbb*/
+	public static final int TRIAL_ALLOWANCE = 13; //13
+	private static int NUMBER_OF_USAGES_FOR_PACKET_OF_10=10;  //10
+
 
     private static final int ARMED_NOTIFICATION_ID=3;
     private NotificationManager mNotificationManager=null;
@@ -278,6 +281,10 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 						if (!isChecked) {
 							if(!mSettingsManager.getBoughtASubscription()&&!mSettingsManager.getBoughtPermanentLicense()) {
 								verifyTurnOff();
+							} else {
+								getHomeManager().disarmLocationService();
+								setControlState(false,null);
+								armedButton.setVisibility(View.GONE);								
 							}
 						} else {
 							armedButton.setVisibility(View.VISIBLE);
@@ -364,7 +371,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
         {
         	DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
         	String reportDate = df.format(mSettingsManager.getSubscriptionEnds());
-            complain("No need! You've bought a subscription that doesn't end until ."+reportDate,false);
+            complain("No need! You've bought a year license that doesn't end until ."+reportDate,false);
             return;
         }
 
@@ -399,10 +406,6 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
     // "Subscribe to infinite gas" button clicked. Explain to user, then start purchase
     // flow for subscription.
     public void onInfiniteGasButtonClicked() {
-        if (!mHelper.subscriptionsSupported()) {
-            complain("Subscriptions not supported on your device yet. Sorry!",false);
-            return;
-        }
 
         /* TODO: for security, generate your payload here for verification. See the comments on
          *        verifyDeveloperPayload() for more info. Since this is a SAMPLE, we just use
@@ -412,15 +415,14 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 
         Log.d(TAG, "Launching purchase flow for infinite gas subscription.");
         mHelper.launchPurchaseFlow(this,
-                SKU_INFINITE_GAS, IabHelper.ITEM_TYPE_SUBS,
+                SKU_INFINITE_GAS, 
                 RC_REQUEST, mPurchaseFinishedListener, payload);
     }
 
     // Listener that's called when we finish querying the items and subscriptions we own
     IabHelper.QueryInventoryFinishedListener mGotInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
-        public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
+        public void onQueryInventoryFinished(IabResult result, Inventory zinventory) {
             Log.d(TAG, "Query inventory finished.");
-
             // Have we been disposed of in the meantime? If so, quit.
             if (mHelper == null) {
             	return;
@@ -441,37 +443,59 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
              */
 
             // Do we have the premium upgrade?
-            Purchase premiumPurchase = inventory.getPurchase(SKU_PREMIUM);
-            mSettingsManager.setBoughtPermanentLicence(premiumPurchase != null && verifyDeveloperPayload(premiumPurchase));
+            Purchase premiumPurchase = zinventory.getPurchase(SKU_PREMIUM);
+            if(premiumPurchase!=null) {
+            	if(verifyDeveloperPayload(premiumPurchase)) {
+            		/*bbhbb   cleanup only mHelper.consumeAsync(premiumPurchase, mConsumeFinishedListener);*/
+            		 mSettingsManager.setBoughtPermanentLicence(true);
+            		 mSettingsManager.setMTank(null);
+            		 return;
+            	} else {
+            		mSettingsManager.setBoughtPermanentLicence(false);
+            	}
+            } else {
+            	mSettingsManager.setBoughtPermanentLicence(false);
+            }
             Log.d(TAG, "User is " + (mSettingsManager.getBoughtPermanentLicense() ? "PREMIUM" : "NOT PREMIUM"));
+            
+            // Check for gas delivery -- if we own gas, we should fill up the tank immediately
+            Purchase gasPurchase = zinventory.getPurchase(SKU_GAS);
+            if (gasPurchase != null && verifyDeveloperPayload(gasPurchase)) {
+         // cleanup, only	 mHelper.consumeAsync(zinventory.getPurchase(SKU_GAS), mConsumeFinishedListener);
+                Log.d(TAG, "We have gas.");
+                mGasPurchase=gasPurchase;
+            	// If we haven't already recorded this purchase, it can only be that they've cleared data; oh well, give them 10 more
+            	Integer mTank=mSettingsManager.getMTank();
+            	if(mTank==null) {
+            		mSettingsManager.setMTank(Integer.valueOf(NUMBER_OF_USAGES_FOR_PACKET_OF_10));
+            	}
+                return;
+            }
+
+            
 
             // Do we have the subscription gas plan?
-            Purchase infiniteGasPurchase = inventory.getPurchase(SKU_INFINITE_GAS);
-            Calendar calendar=null;
+            Purchase infiniteGasPurchase = zinventory.getPurchase(SKU_INFINITE_GAS);
             if(infiniteGasPurchase!=null) {
-            	calendar=Calendar.getInstance();
-            	calendar.setTimeInMillis(infiniteGasPurchase.getPurchaseTime());
-            	calendar.add(Calendar.YEAR, 1);
-            }
-            mSettingsManager.setBoughtASubscription(infiniteGasPurchase != null &&
-            		(calendar.getTimeInMillis()>new Date().getTime()) &&
-                    verifyDeveloperPayload(infiniteGasPurchase));
-            if(mSettingsManager.getBoughtASubscription()) {
-            	Date date=new Date();
-            	date.setTime(infiniteGasPurchase.getPurchaseTime());
-            	GregorianCalendar gc=new GregorianCalendar(Locale.getDefault());
-            	gc.setTime(date);
-            	mSettingsManager.setSubscriptionEnds(gc.getTime());
-            }
-            Log.d(TAG, "User " + (mSettingsManager.getBoughtASubscription() ? "HAS" : "DOES NOT HAVE")
-                        + " gas subscription.");
-
-            // Check for gas delivery -- if we own gas, we should fill up the tank immediately
-            Purchase gasPurchase = inventory.getPurchase(SKU_GAS);
-            if (gasPurchase != null && verifyDeveloperPayload(gasPurchase)) {
-                Log.d(TAG, "We have gas. Consuming it.");
-                mHelper.consumeAsync(inventory.getPurchase(SKU_GAS), mConsumeFinishedListener);
-                return;
+            	if(verifyDeveloperPayload(infiniteGasPurchase)) {
+            		Calendar calendar=null;
+                	calendar=Calendar.getInstance();
+                	calendar.setTimeInMillis(infiniteGasPurchase.getPurchaseTime());
+                	calendar.add(Calendar.YEAR, 1);
+                	if(calendar.getTimeInMillis()>new Date().getTime()) {
+                		mSettingsManager.setBoughtASubscription(true);
+                		calendar.add(Calendar.YEAR, 1);
+                		mSettingsManager.setSubscriptionEnds(calendar.getTime());
+                		mSettingsManager.setMTank(null);
+                	} else {
+                		mHelper.consumeAsync(infiniteGasPurchase, mConsumeFinishedListener);
+                		mSettingsManager.setBoughtASubscription(false);
+                	}
+            	} else {
+            		mSettingsManager.setBoughtASubscription(false);
+            	}
+            } else {
+            	mSettingsManager.setBoughtASubscription(false);
             }
             Log.d(TAG, "Initial inventory query finished; enabling main UI.");
 
@@ -532,10 +556,14 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 
             Log.d(TAG, "Purchase successful.");
 
+            
             if (purchase.getSku().equals(SKU_GAS)) {
-                // bought 1/4 tank of gas. So consume it.
-                Log.d(TAG, "Purchase is gas. Starting gas consumption.");
-                mHelper.consumeAsync(purchase, mConsumeFinishedListener);
+                // bought 1/4 tank of gas.
+                Log.d(TAG, "Purchase is gas.");
+            	mSettingsManager.setMTank(Integer.valueOf(NUMBER_OF_USAGES_FOR_PACKET_OF_10));
+            	mPostPaymentManager.doPostPaymentActivities();
+            	mGasPurchase=purchase;
+                alert("Thank you for buying a 10-usage license!",false);
             }
             else if (purchase.getSku().equals(SKU_PREMIUM)) {
                 // bought the premium upgrade!
@@ -543,7 +571,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
                 mSettingsManager.setBoughtPermanentLicence(true);
                 mSettingsManager.setMTank(null);
                 mPostPaymentManager.doPostPaymentActivities();
-                alert("Thank you for upgrading to a permanent license!",false);
+                alert("Thank you for buying a permanent license!",false);
             }
             else if (purchase.getSku().equals(SKU_INFINITE_GAS)) {
                 // bought the infinite gas subscription
@@ -551,7 +579,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
                 mSettingsManager.setBoughtASubscription(true);
                 mSettingsManager.setMTank(null);
                 mPostPaymentManager.doPostPaymentActivities();
-                alert("Thank you for subscribing.",false);
+                alert("Thank you for buying a year's license.",false);
             }
         }
     };
@@ -573,10 +601,6 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
                 // successfully consumed, so we apply the effects of the item in our
                 // game world's logic, which in our case means filling the gas tank a bit
                 Log.d(TAG, "Consumption successful. Provisioning.");
-                if(mSettingsManager.getMTank()==null || mSettingsManager.getMTank().intValue()==0) {
-                	mSettingsManager.setMTank(Integer.valueOf(10));
-                	mPostPaymentManager.doPostPaymentActivities();
-                }
             	
             }
             else {
@@ -700,7 +724,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 
 						TrialVersionDialog tvdd=new TrialVersionDialog(
 								"Trial Software Alarm",
-								"Thank you for utilizing Commuter Alarm. We sincerely hope that you find it useful. Your usage period is nearing its end. You have "+ String.valueOf((TRIAL_ALLOWANCE-mHomeManager.getSecurityManager().getCountUserArmed()+1)) +" usages left; after which time you will be asked to:\n\n1. Buy a packet of 10 usages: $0.99, \n2. Buy an unlimited-use subscription that lasts a year: $5.99, or\n3. Buy unlimited use forever: $10.99. ",
+								"Thank you for utilizing Commuter Alarm. We sincerely hope that you find it useful. Your usage period is nearing its end. You have "+ String.valueOf((TRIAL_ALLOWANCE-mHomeManager.getSecurityManager().getCountUserArmed()+1)) +" usages left; after which time you will be asked to:\n\n1. Buy a packet of 10 usages: $0.99, \n2. Buy an unlimited-use license that lasts a year: $5.99, or\n3. Buy unlimited use forever: $10.99. ",
 								false,this
 								);
 						tvdd.show(getFragmentManager(), "TrialVersionWarning");
@@ -719,7 +743,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 				
 				TrialVersionDialog tvdd=new TrialVersionDialog(
 						"Unregistered Version",
-						"It appears that you are using an un-registered version. In order to continue using Commuter Alert you will have to purchase it. If you think that you have received this message in error, please try to load Commuter Alert again; and if that fails, please contact us.",
+						"It appears that you are using an un-registered version. In order to continue using Commuter Alarm you will have to purchase it. If you think that you have received this message in error, please try to load Commuter Alert again; and if that fails, please contact us.",
 						true,this
 						);
 				tvdd.show(getFragmentManager(), "TrialVersion_unregistered");
@@ -737,6 +761,9 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 		}
 		if(mSettingsManager.getMTank()!=null && mSettingsManager.getMTank().intValue()>0) {
 			mHomeManager.getSecurityManager().incrementTrials();
+			if(mSettingsManager.getMTank()==0) {
+                mHelper.consumeAsync(mGasPurchase, mConsumeFinishedListener);
+			}
 		}
 		return true;
 	}
@@ -946,7 +973,7 @@ public class Home2 extends AbstractActivityForMenu implements HomeImplementer,
 					}
 				});
 		builder.setCancelable(true);
-		builder.setNeutralButton("Yearly Subscription: USD 5.99",
+		builder.setNeutralButton("Usage for 1 Year: USD 5.99",
 				new DialogInterface.OnClickListener() {
 
 					@Override

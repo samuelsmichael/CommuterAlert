@@ -99,7 +99,9 @@ public abstract class LocationService extends Service  {
 										    	.setContentText(mAddressInReadableForm)
 										    	.setOngoing(true);
 									    	// Creates an explicit intent for an Activity in your app
-									    	Intent resultIntent = new Intent(LocationService.this,Home2.class);
+									    	Intent resultIntent = new Intent(LocationService.this,Home2.class)
+												.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+												.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
 											PendingIntent pendingIntent = PendingIntent.getActivity(LocationService.this,
 													(int)System.currentTimeMillis(), resultIntent, 0);
 									    	mBuilder.setContentIntent(pendingIntent);    	    	

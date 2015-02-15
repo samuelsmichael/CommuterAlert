@@ -445,7 +445,7 @@ containing a value of this type.
         public static final int image_bg=0x7f020038;
         public static final int launcher=0x7f020039;
         public static final int list_selector=0x7f02003a;
-        public static final int logo_splash_medium=0x7f02003b;
+        public static final int logo_splash=0x7f02003b;
         public static final int mapicon=0x7f02003c;
         public static final int powered_by_google_dark=0x7f02003d;
         public static final int powered_by_google_light=0x7f02003e;
@@ -461,11 +461,11 @@ containing a value of this type.
     public static final class id {
         public static final int about_notice=0x7f0d0042;
         public static final int about_version=0x7f0d0041;
-        public static final int action_about=0x7f0d005a;
-        public static final int action_contactus=0x7f0d0059;
-        public static final int action_help=0x7f0d0058;
-        public static final int action_rateapp=0x7f0d0057;
-        public static final int action_settings=0x7f0d0056;
+        public static final int action_about=0x7f0d005b;
+        public static final int action_contactus=0x7f0d005a;
+        public static final int action_help=0x7f0d0059;
+        public static final int action_rateapp=0x7f0d0058;
+        public static final int action_settings=0x7f0d0057;
         public static final int book_now=0x7f0d000e;
         public static final int btnDisarm=0x7f0d0027;
         public static final int buttonAddress=0x7f0d001f;
@@ -487,9 +487,9 @@ containing a value of this type.
         public static final int emptyhistory=0x7f0d0017;
         public static final int grayscale=0x7f0d0012;
         public static final int historyListId=0x7f0d0016;
-        public static final int history_deleteit=0x7f0d0055;
-        public static final int history_renameit=0x7f0d0053;
-        public static final int history_selectit=0x7f0d0054;
+        public static final int history_deleteit=0x7f0d0056;
+        public static final int history_renameit=0x7f0d0054;
+        public static final int history_selectit=0x7f0d0055;
         public static final int historydescription=0x7f0d0046;
         public static final int historylist_image=0x7f0d0044;
         public static final int historyname=0x7f0d0045;
@@ -502,6 +502,7 @@ containing a value of this type.
         public static final int image_help_main_2=0x7f0d002d;
         public static final int image_help_main_3=0x7f0d002f;
         public static final int image_help_main_4=0x7f0d002e;
+        public static final int ivImageSplash=0x7f0d0053;
         public static final int jedis=0x7f0d003e;
         public static final int linearLayout1=0x7f0d001d;
         public static final int linearLayout2=0x7f0d001a;

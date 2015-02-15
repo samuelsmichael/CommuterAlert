@@ -2,7 +2,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.usefulsoftwaresolutions.android.commuterhelper"
-    android:versionCode="1"
+    android:versionCode="4"
     android:versionName="1.00" >
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />

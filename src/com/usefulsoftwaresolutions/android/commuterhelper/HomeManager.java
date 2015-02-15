@@ -425,7 +425,8 @@ public class HomeManager implements
 				+ location.getLongitude()
 				+ "&pagetoken="
 				+ (nextPageToken == null ? "" : nextPageToken)
-				+ "&radius=50000&types=train_station|subway_station|transit_station&sensor=true&key="
+				+ "&radius=50000&types=train_station|subway_station&sensor=true&key="
+//				+ "&radius=50000&types=train_station|subway_station|transit_station&sensor=true&key="
 				+ GOOGLE_API_KEY;
 		URL u = new URL(url);
 		HttpURLConnection conn = (HttpURLConnection) u.openConnection();

@@ -137,9 +137,9 @@ public abstract class AbstractActivityForMenu extends Activity {
 				notice.setText("Thank you for purchasing a permanent license for Commuter Alarm!");
 			} else {
 				if(mIsSubscription) {
-			        SimpleDateFormat fmt = new SimpleDateFormat("MMMM-dd-yyyy");
-			        String dateFormatted = fmt.format(mWhenSubscriptionEnds);
-					notice.setText("Your subscription ends on" + dateFormatted);
+			        SimpleDateFormat fmt = new SimpleDateFormat("MMMM dd, yyyy");
+			        String dateFormatted = fmt.format(mWhenSubscriptionEnds.getTime());
+					notice.setText("Your license ends on " + dateFormatted);
 				} else {
 					notice.setText("Number of usages left: " + String.valueOf(mNumberOfUsagesLeft));
 				}
